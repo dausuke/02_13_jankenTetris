@@ -137,7 +137,9 @@ a{
     position: absolute;
     top:0;
     font-size: 30px;
-
+}
+.scorecount{
+    font-size: 80px;
 }
 /* モーダルウィンドウ */
 .modal{

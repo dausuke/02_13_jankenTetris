@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../css/janken.css">
+  <title>じゃんけんテトリス</title>
+</head>
+
+<body>
+  <section>
+    <header>
+      <h1>じゃんけんテトリス</h1>
+    </header>
+
+    <main>
+      <!-- メニュー画面 -->
+      <div class="content active" id="manu">
+        <ul class="tab">
+          <li class="active"><a href="#manu">最初に戻る</a></li>
+          <li><a href="#start">はじめる</a></li>
+          <li><a href="#rule">遊び方</a></li>
+        </ul>
+      </div>
+      <!-- ゲーム画面 -->
+      <div class="content" id="start">
+        <!-- プレイ画面大枠 -->
+        <div class="content" id="play">
+          <!-- プレイ画面 -->
+          <div class="play-display">
+            <!-- コンピューター画面 -->
+            <div class="cp-display">
+              <!-- コンピューターの手の表示フィールド -->
+              <div class="field" id=field1>
+                <div class="janken-cp">
+                  
+                </div>
+              </div>
+              <div class="field" id=field2>
+                <div class="janken-cp">
+                  
+                </div>
+              </div>
+              <div class="field" id=field3>
+                <div class="janken-cp">
+                  
+                </div>
+              </div>
+              <div class="field" id=field4>
+                <div class="janken-cp">
+                  
+                </div>
+              </div>
+              <div class="field" id=field5>
+                <div class="janken-cp">
+                  
+                </div>
+              </div>
+              <div class="field" id=field6>
+                <div class="janken-cp">
+                  
+                </div>
+              </div>
+              <div class="field" id=field7>
+                <div class="janken-cp">
+            
+                </div>
+              </div>
+            </div>
+            <!-- ユーザー画面 -->
+            <div class="player-display">
+              <!-- ユーザーの手 -->
+              <div class="janken-player">
+                <img src="../img/janken_gu.png" alt="" class="img-gu">
+              </div>
+            </div>
+          </div>
+          <!-- 制限時間とスコア画面 -->
+          <div class="sub-display">
+            <!-- 制限時間 -->
+            <div class="time">
+              <p>制限時間</p>
+              <div class="countdown"></div>
+            </div>
+            <!-- スコア画面 -->
+            <div class="score">
+              <p>スコア</p>
+              <div class="scorecount"></div>
+            </div>
+          </div>
+        </div>
+        <!-- モーダルウィンドウで開始確認 -->
+        <a class="modal-open" href="" data-target="modal01">はじめる</a>
+        <div class="modal ">
+          <div class="modal-content">
+            <a class="modal-close" id="game-play" href="">スタートしますか？</a>
+          </div>
+        </div>
+        <ul class="tab">
+          <li class="active"><a href="#manu">最初に戻る</a></li>
+        </ul>
+      </div>
+
+
+      <!-- ルール画面 -->
+      <div class="content" id="rule">
+        <ul class="tab">
+          <li class="active"><a href="#manu">最初に戻る</a></li>
+          <li><a href="#start">はじめる</a></li>
+        </ul>
+        <p>上から落ちてくるじゃんけんの手に勝ってスコアを伸ばしましょう。</p>
+        <p>制限時間は３０秒です。</p>
+        <p>←　→キーで横移動、Ｚキーでグー、Ｘキーでパー、Ｃキーでチョキです。</p>
+        <p>勝つと＋１００ｐｔ。</p>
+        <p>負けると―２秒制限時間が縮みます。</p>
+        <p>ときどき落ちてくる石に気を付けましょう。</p>
+        <p>石に当たると―３秒制限時間が縮みます。</p>
+
+      </div>
+
+    </main>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+      $(function () {
+        //画面の切り替え
+        $('.tab a').on('click', function () {
+          $(this).parent().addClass('active').siblings('.active').removeClass('active');
+          var content = $(this).attr('href');
+          $(content).addClass('active').siblings('.active').removeClass('active');
+          return false;
+        });
+        // モーダルウィンドウ表示・非表示
+        $('.modal-open').on('click', function () {
+          $('.modal').fadeIn();
+          return false;
+        });
+        $('.modal-close').on('click', function () {
+          $('.modal').fadeOut();
+          return false;
+        });
+
+        //ゲームの処理
+        var xx;            //ユーザーの手の移動値
+        var yokous         //ユーザーの手の位置情報
+        var yy = 80;       //コンピューターの手の移動値
+        var tate = [];     //コンピューターの手のy軸の位置情報用の配列
+        var array = [];    //コンピューターの手の出現用の配列
+        var setid;         //setInterval終了用
+        var score = 0;     //スコア記録用
+        var time;          //制限時間用
+        var yokoyoko;
+
+        function idouuser() {
+          $('.janken-player').css({ left: '+=' + xx + 'px' },);
+          //ユーザーの手の位置情報取得
+          yokous = Math.floor($('.janken-player').offset().left);
+        };
+
+        //コンピューターの手の移動の関数
+        function idoucp() {
+          $('.janken-cp').animate({ top: '+=' + yy + 'px' });
+          tate =    //コンピューターの手のy軸の位置情報取得
+            [parseInt($('#cp1').css('top')) ,parseInt($('#cp2').css('top')), 
+            parseInt($('#cp3').css('top')) ,parseInt($('#cp4').css('top')) , 
+            parseInt($('#cp5').css('top')) ,parseInt($('#cp6').css('top')) , 
+            parseInt($('#cp7').css('top')) ,parseInt($('#cp8').css('top')) , 
+            parseInt($('#cp9').css('top')) ,parseInt($('#cp10').css('top')) , 
+            parseInt($('#cp11').css('top')) ,parseInt($('#cp12').css('top')) , 
+            parseInt($('#cp13').css('top')) ,parseInt($('#cp14').css('top')) , 
+            parseInt($('#cp15').css('top'))];
+          
+          //コンピューターの手のx軸の位置情報を表示フィールドに応じて取得
+          var yokocp1 = Math.floor($('#field' + array[0]).offset().left);
+          var yokocp2 = Math.floor($('#field' + array[1]).offset().left);
+          var yokocp3 = Math.floor($('#field' + array[2]).offset().left);
+          var yokocp4 = Math.floor($('#field' + array[3]).offset().left);
+          var yokocp5 = Math.floor($('#field' + array[4]).offset().left);
+          var yokocp6 = Math.floor($('#field' + array[5]).offset().left);
+          var yokocp7 = Math.floor($('#field' + array[6]).offset().left);
+
+          // console.log('cp：'+yokocp1)
+          // console.log('us：'+ yokoyoko)
+          if (tate[0] == 400 && yokous == yokocp1) {
+            if($('.janken-player .img-pa').length){
+              console.log('pa')
+            }else if ($('.janken-player .img-gu').length){
+              console.log('gu')
+              time -= 2;
+              $('.countdown').html(time);
+            }else if ($('.janken-player .img-choki').length){
+              console.log('choki')
+              score += 100;
+              $('.scorecount').html(score);
+            } else {
+              time -= 3
+              $('.countdown').html(time);
+            }
+          }
+        if (tate[1] == 400 && yokous == yokocp2) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        if (tate[2] == 400 && yokous == yokocp3) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        if (tate[3] == 400 && yokous == yokocp4) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        if (tate[4] == 400 && yokous == yokocp5) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        if (tate[5] == 400 && yokous == yokocp6) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        if (tate[6] == 400 && yokous == yokocp7) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        if (tate[7] == 400 && yokous == yokocp1) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        if (tate[8] == 400 && yokous == yokocp2) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        if (tate[9] == 400 && yokous == yokocp3) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        if (tate[10] == 400 && yokous == yokocp4) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        if (tate[11] == 400 && yokous == yokocp5) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        if (tate[12] == 400 && yokous == yokocp6) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        if (tate[13] == 400 && yokous == yokocp7) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        if (tate[14] == 400 && yokous == yokocp2) {
+          if ($('.janken-player .img-pa').length) {
+            console.log('pa')
+          } else if ($('.janken-player .img-gu').length) {
+            console.log('gu')
+            time -= 2;
+            $('.countdown').html(time);
+          } else if ($('.janken-player .img-choki').length) {
+            console.log('choki')
+            score += 100;
+            $('.scorecount').html(score);
+          } else {
+            time -= 3
+            $('.countdown').html(time);
+          }
+        }
+        };
+
+
+        //配列arrayの中身をシャッフル
+        array = [1, 2, 3, 4, 5, 6, 7];
+        for (i = array.length; 1 < i; i--) {    
+          k = Math.floor(Math.random() * i);
+          [array[k], array[i - 1]] = [array[i - 1], array[k]];
+        };
+
+        //コンピューターの手の出現用の関数１
+        //配列の数値に応じて出現フィールドを決定
+        function img1() {
+          $('#field'+ array[0]).append('<div class = janken-cp id = cp1 ><img src="../img/janken_2.png" alt=""class="img-cp" id = img1></div>');
+        };
+        function img2() {
+          $('#field' + array[1]).append('<div class = janken-cp id = cp2 ><img src="../img/janken_0.png" alt=""class="img-cp" id = img2></div>');
+        };
+        function img3() {
+          $('#field' + array[2]).append('<div class = janken-cp id = cp3 ><img src="../img/janken_1.png" alt=""class="img-cp" id = img3></div>');
+        };
+        function img4() {
+          $('#field' + array[3]).append('<div class = janken-cp id = cp4 ><img src="../img/janken_1.png" alt=""class="img-cp" id = img4></div>');
+        }
+        function img5() {      
+          $('#field' + array[4]).append('<div class = janken-cp id = cp5 ><img src="../img/janken_0.png" alt=""class="img-cp" id = img5></div>');
+        }
+        function img6() {      
+          $('#field' + array[5]).append('<div class = janken-cp id = cp6 ><img src="../img/janken_3.png" alt=""class="img-cp" id = img6></div>');
+        }
+        function img7() {      
+          $('#field' + array[6]).append('<div class = janken-cp id = cp7 ><img src="../img/janken_2.png" alt=""class="img-cp" id = img7></div>');
+        }
+        function img8() {     
+          $('#field' + array[0]).append('<div class = janken-cp id = cp8 ><img src="../img/janken_2.png" alt=""class="img-cp" id = img8></div>');
+        }
+        function img9() {      
+          $('#field' + array[1]).append('<div class = janken-cp id = cp9 ><img src="../img/janken_3.png" alt=""class="img-cp" id = img9></div>');
+        }
+        function img10() {      
+          $('#field' + array[2]).append('<div class = janken-cp id = cp10 ><img src="../img/janken_1.png" alt=""class="img-cp" id = img10></div>');
+        }
+        function img11() {      
+          $('#field' + array[3]).append('<div class = janken-cp id = cp11 ><img src="../img/janken_0.png" alt=""class="img-cp" id = img11></div>');
+        }
+        function img12() {      
+          $('#field' + array[4]).append('<div class = janken-cp id = cp12 ><img src="../img/janken_2.png" alt=""class="img-cp" id = img12></div>');
+        }
+        function img13() {      
+          $('#field' + array[5]).append('<div class = janken-cp id = cp13 ><img src="../img/janken_1.png" alt=""class="img-cp" id = img13></div>');
+        }
+        function img14() {      
+          $('#field' + array[6]).append('<div class = janken-cp id = cp14 ><img src="../img/janken_3.png" alt=""class="img-cp" id = img14></div>');
+        }
+        function img15() {      
+          $('#field' + array[1]).append('<div class = janken-cp id = cp15 ><img src="../img/janken_0.png" alt=""class= "img-cp" id = img15></div>');
+        }
+
+        //コンピューターの手の出現用の関数２
+        //決定したフィールドに2秒おきに手を出現させる
+        function shutugencp() {
+          setTimeout(function () { img1() }, 0);
+          setTimeout(function () { img2()}, 2000);
+          setTimeout(function () { img3()}, 4000);
+          setTimeout(function () { img4()}, 6000);
+          setTimeout(function () { img5()}, 8000);
+          setTimeout(function () { img6()}, 10000);
+          setTimeout(function () { img7()}, 12000);
+          setTimeout(function () { img8()}, 14000);
+          setTimeout(function () { img9()}, 16000); 
+          setTimeout(function () { img10()}, 18000);
+          setTimeout(function () { img11()}, 20000);
+          setTimeout(function () { img12()}, 24000);
+          setTimeout(function () { img13()}, 26000);
+          setTimeout(function () { img14()}, 28000);
+          setTimeout(function () { img15()}, 30000);
+        };
+
+        //勝敗判定の関数
+        //ユーザーの手によって判定
+        // function shouhaigu () {
+        //   if(posi['top']==400){
+        //     // if($('#pa').length){
+        //     //   score += 100;
+        //     // }else if ($('#choki').length){
+        //     //   cnt -= 1;
+        //     // }
+        //     console.log('hello')
+        //   }
+        // };
+          // if (randomNumber == 1) {
+          //   $('#field1 ').append('<div class = janken-cp><img src="../img/janken_0.png" alt=""class="img-cp" id = img1></div>');
+          // } else if (randomNumber == 2) {
+          //   $('#field2 ').append('<div class = janken-cp><img src="../img/janken_0.png" alt=""class="img-cp" id = img2></div>');
+          // } else if (randomNumber == 3) {
+          //   $('#field3 ').append('<div class = janken-cp><img src="../img/janken_0.png" alt=""class="img-cp" id = img3></div>');
+          // } else if (randomNumber == 4) {
+          //   $('#field4 ').append('<div class = janken-cp><img src="../img/janken_0.png" alt=""class="img-cp" id = img4></div>');
+          // } else if (randomNumber == 5) {
+          //   $('#field5 ').append('<div class = janken-cp><img src="../img/janken_0.png" alt=""class="img-cp" id = img5></div>');
+          // } else if (randomNumber == 6) {
+          //   $('#field6 ').append('<div class = janken-cp><img src="../img/janken_0.png" alt=""class="img-cp" id = img6></div>');
+          // } else if (randomNumber == 7) {
+          //   $('#field7 ').append('<div class = janken-cp><img src="../img/janken_0.png" alt=""class="img-cp" id = img7></div>');
+          // };
+       
+        // コンピューターの手をランダム表示の関数
+        // 乱数を7つ用意し、その数値に応じて画像を書き換え
+        // function kirikaecp() {
+        //   const rdm1 = Math.floor(Math.random() * 4);
+        //   const rdm2 = Math.floor(Math.random() * 4);
+        //   const rdm3 = Math.floor(Math.random() * 4);
+        //   const rdm4 = Math.floor(Math.random() * 4);
+        //   const rdm5 = Math.floor(Math.random() * 4);
+        //   const rdm6 = Math.floor(Math.random() * 4);
+        //   const rdm7 = Math.floor(Math.random() * 4);
+        //   $('#img1').attr('src', '../img/janken_' + rdm1 + '.png');
+        //   $('#img2').attr('src', '../img/janken_' + rdm2 + '.png');
+        //   $('#img3').attr('src', '../img/janken_' + rdm3 + '.png');
+        //   $('#img4').attr('src', '../img/janken_' + rdm4 + '.png');
+        //   $('#img5').attr('src', '../img/janken_' + rdm5 + '.png');
+        //   $('#img6').attr('src', '../img/janken_' + rdm6 + '.png');
+        //   $('#img7').attr('src', '../img/janken_' + rdm7 + '.png');
+        // };
+        // function kirikaecp() {
+        //   var array = [];
+        //   var length = 15; // 配列長
+        //   for (let i = 0; i < length; i++) {
+        //     //配列arrayに０～３までの乱数を格納
+        //     array.push(Math.floor(Math.random() * 4));
+        //   }
+        //   // console.log(array);
+        //   //15枚の画像を用意し、配列arrayの値に書き換え
+        //   $('#img1').attr('src', '../img/janken_' + array[0] + '.png');
+        //   $('#img2').attr('src', '../img/janken_' + array[1] + '.png');
+        //   $('#img3').attr('src', '../img/janken_' + array[2] + '.png');
+        //   $('#img4').attr('src', '../img/janken_' + array[3] + '.png');
+        //   $('#img5').attr('src', '../img/janken_' + array[4] + '.png');
+        //   $('#img6').attr('src', '../img/janken_' + array[5] + '.png');
+        //   $('#img7').attr('src', '../img/janken_' + array[6] + '.png');
+        //   $('#img8').attr('src', '../img/janken_' + array[7] + '.png');
+        //   $('#img9').attr('src', '../img/janken_' + array[8] + '.png');
+        //   $('#img10').attr('src', '../img/janken_' + array[9] + '.png');
+        //   $('#img11').attr('src', '../img/janken_' + array[10] + '.png');
+        //   $('#img12').attr('src', '../img/janken_' + array[11] + '.png');
+        //   $('#img13').attr('src', '../img/janken_' + array[12] + '.png');
+        //   $('#img14').attr('src', '../img/janken_' + array[13] + '.png');
+        //   $('#img15').attr('src', '../img/janken_' + array[14] + '.png');
+        // };
+
+        //ここから処理実行
+        //ユーザーの手の動きと勝敗判定
+        $(window).keyup(function (e) {
+          if (e.keyCode == 37) {         //横移動
+            xx = -80;
+            idouuser();
+          } else if (e.keyCode == 39) {
+            xx = 80;
+            idouuser();
+          } else if (e.keyCode == 90) {     //手の切り替え
+            $('.janken-player').html('<img src="../img/janken_1.png" alt="" class="img-gu" id = gu>');
+          } else if (e.keyCode == 88) {
+            $('.janken-player').html('<img src="../img/janken_pa.png" alt="" class="img-pa" id = pa>');
+          } else if (e.keyCode == 67) {
+            $('.janken-player').html('<img src="../img/janken_choki.png" alt="" class="img-choki" id =choki>');
+          };
+        });
+
+        //#game-playクリックでカウントダウンタイマー作動とコンピューターの手の処理実行
+        $(function () {
+          $('#game-play').on('click', function () {
+            shutugencp();       //手の出現実行
+            time = 30;       //30秒のカウントダウン
+            $('.scorecount').html(score);
+            $('.countdown').html(time);     //制限時間表示
+            setid = setInterval(function () {
+              idoucp();        //移動実行
+              time--;           //1秒おきにカウントマイナス
+              $('.countdown').html(time);     //制限時間再表示
+              if (time <= 0) {           //0になったら停止する
+                clearInterval(setid);
+                $(".field").empty();    //画像の削除
+                alert("ゲーム終了");     //アラートでゲーム終了の表示
+              }
+            }, 1000);
+            
+          });
+        });
+      });
+    </script>
+  </section>
+</body>
+
+</html>
