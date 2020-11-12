@@ -67,6 +67,9 @@
             
                 </div>
               </div>
+              <div class="hantei">
+                
+              </div>
             </div>
             <!-- ユーザー画面 -->
             <div class="player-display">
@@ -115,10 +118,8 @@
         <p>勝つと＋１００ｐｔ。</p>
         <p>負けると―２秒制限時間が縮みます。</p>
         <p>ときどき落ちてくる石に気を付けましょう。</p>
-        <p>石に当たると―３秒制限時間が縮みます。</p>
-
+        <p>石に当たると―３秒制限時間が縮み、スコアが－５０ｐｔになります。</p>
       </div>
-
     </main>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -150,7 +151,6 @@
         var setid;         //setInterval終了用
         var score = 0;     //スコア記録用
         var time;          //制限時間用
-        var yokoyoko;
 
         function idouuser() {
           $('.janken-player').css({ left: '+=' + xx + 'px' },);
@@ -182,246 +182,161 @@
 
           // console.log('cp：'+yokocp1)
           // console.log('us：'+ yokoyoko)
-          if (tate[0] == 400 && yokous == yokocp1) {
+
+          //勝敗判定
+          //コンピューターの手がユーザーの手の真上に来た時に
+          //その時のユーザーの手に応じて処理実行
+          if (tate[0] == 400 && yokous == yokocp1) {    //コンピューターの手：パー
             if($('.janken-player .img-pa').length){
               console.log('pa')
             }else if ($('.janken-player .img-gu').length){
-              console.log('gu')
               time -= 2;
               $('.countdown').html(time);
             }else if ($('.janken-player .img-choki').length){
-              console.log('choki')
               score += 100;
               $('.scorecount').html(score);
-            } else {
-              time -= 3
+            }
+          }
+          if (tate[1] == 400 && yokous == yokocp2) {    //コンピューターの手：チョキ
+            if ($('.janken-player .img-pa').length) {
+              time -= 2;
+              $('.countdown').html(time);
+            } else if ($('.janken-player .img-gu').length) {
+              score += 100;
+              $('.scorecount').html(score);
+            } else if ($('.janken-player .img-choki').length) {
+              console.log('pa')
+            }
+          }
+          if (tate[2] == 400 && yokous == yokocp3) {    //コンピューターの手：グー
+            if ($('.janken-player .img-pa').length) {
+              score += 100;
+              $('.scorecount').html(score);
+            } else if ($('.janken-player .img-gu').length) {
+              console.log('gu')
+            } else if ($('.janken-player .img-choki').length) {
+              time -= 2;
               $('.countdown').html(time);
             }
           }
-        if (tate[1] == 400 && yokous == yokocp2) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
-            $('.scorecount').html(score);
-          } else {
+          if (tate[3] == 400 && yokous == yokocp4) {    //コンピューターの手：グー
+            if ($('.janken-player .img-pa').length) {
+              score += 100;
+              $('.scorecount').html(score);
+            } else if ($('.janken-player .img-gu').length) {
+              console.log('gu')
+            } else if ($('.janken-player .img-choki').length) {
+              time -= 2;
+              $('.countdown').html(time);
+            }
+          }
+          if (tate[4] == 400 && yokous == yokocp5) {    //コンピューターの手：チョキ
+            if ($('.janken-player .img-pa').length) {
+              time -= 2;
+              $('.countdown').html(time);
+            } else if ($('.janken-player .img-gu').length) {
+              score += 100;
+              $('.scorecount').html(score);
+            } else if ($('.janken-player .img-choki').length) {
+              console.log('choki')
+            }
+          }
+          if (tate[5] == 400 && yokous == yokocp6) {    //コンピューターの手：石
             time -= 3
             $('.countdown').html(time);
-          }
-        }
-        if (tate[2] == 400 && yokous == yokocp3) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
+            score -= 50;
             $('.scorecount').html(score);
-          } else {
+          }
+          if (tate[6] == 400 && yokous == yokocp7) {    //コンピューターの手：パー
+              if ($('.janken-player .img-pa').length) {
+              console.log('pa')
+            } else if ($('.janken-player .img-gu').length) {
+              time -= 2;
+              $('.countdown').html(time);
+            } else if ($('.janken-player .img-choki').length) {
+              score += 100;
+              $('.scorecount').html(score);
+            }
+          }
+          if (tate[7] == 400 && yokous == yokocp1) {    //コンピューターの手：パー
+            if ($('.janken-player .img-pa').length) {
+              console.log('pa')
+            } else if ($('.janken-player .img-gu').length) {
+              time -= 2;
+              $('.countdown').html(time);
+            } else if ($('.janken-player .img-choki').length) {
+              score += 100;
+              $('.scorecount').html(score);
+            }
+          }
+          if (tate[8] == 400 && yokous == yokocp2) {    //コンピューターの手：石
             time -= 3
             $('.countdown').html(time);
-          }
-        }
-        if (tate[3] == 400 && yokous == yokocp4) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
+            score -= 50;
             $('.scorecount').html(score);
-          } else {
+          }
+          if (tate[9] == 400 && yokous == yokocp3) {    //コンピューターの手：グー
+            if ($('.janken-player .img-pa').length) {
+              score += 100;
+              $('.scorecount').html(score);
+            } else if ($('.janken-player .img-gu').length) {
+              console.log('gu')
+            } else if ($('.janken-player .img-choki').length) {
+              time -= 2;
+              $('.countdown').html(time);
+            }
+          }
+          if (tate[10] == 400 && yokous == yokocp4) {    //コンピューターの手：チョキ
+            if ($('.janken-player .img-pa').length) {
+              time -= 2;
+              $('.countdown').html(time);
+            } else if ($('.janken-player .img-gu').length) {
+              cscore += 100;
+              $('.scorecount').html(score);
+            } else if ($('.janken-player .img-choki').length) {
+              console.log('choki')
+            }
+          }
+          if (tate[11] == 400 && yokous == yokocp5) {    //コンピューターの手：パー
+            if ($('.janken-player .img-pa').length) {
+              console.log('pa')
+            } else if ($('.janken-player .img-gu').length) {
+              console.log('gu')
+              time -= 2;
+              $('.countdown').html(time);
+            } else if ($('.janken-player .img-choki').length) {
+              score += 100;
+              $('.scorecount').html(score);
+            } 
+          }
+          if (tate[12] == 400 && yokous == yokocp6) {    //コンピューターの手：グー
+            if ($('.janken-player .img-pa').length) {
+              score += 100;
+              $('.scorecount').html(score);
+            } else if ($('.janken-player .img-gu').length) {
+              console.log('gu')
+            } else if ($('.janken-player .img-choki').length) {
+              time -= 2;
+              $('.countdown').html(time);
+            }
+          }
+          if (tate[13] == 400 && yokous == yokocp7) {    //コンピューターの手：石
             time -= 3
             $('.countdown').html(time);
-          }
-        }
-        if (tate[4] == 400 && yokous == yokocp5) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
+            score -= 50;
             $('.scorecount').html(score);
-          } else {
-            time -= 3
-            $('.countdown').html(time);
           }
-        }
-        if (tate[5] == 400 && yokous == yokocp6) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
+          if (tate[14] == 400 && yokous == yokocp2) {    //コンピューターの手：チョキ
+            if ($('.janken-player .img-pa').length) {
+              time -= 2;
+              $('.countdown').html(time);
+            } else if ($('.janken-player .img-gu').length) {
+              score += 100;
             $('.scorecount').html(score);
-          } else {
-            time -= 3
-            $('.countdown').html(time);
+            } else if ($('.janken-player .img-choki').length) {
+              console.log('choki')
+            }
           }
-        }
-        if (tate[6] == 400 && yokous == yokocp7) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
-            $('.scorecount').html(score);
-          } else {
-            time -= 3
-            $('.countdown').html(time);
-          }
-        }
-        if (tate[7] == 400 && yokous == yokocp1) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
-            $('.scorecount').html(score);
-          } else {
-            time -= 3
-            $('.countdown').html(time);
-          }
-        }
-        if (tate[8] == 400 && yokous == yokocp2) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
-            $('.scorecount').html(score);
-          } else {
-            time -= 3
-            $('.countdown').html(time);
-          }
-        }
-        if (tate[9] == 400 && yokous == yokocp3) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
-            $('.scorecount').html(score);
-          } else {
-            time -= 3
-            $('.countdown').html(time);
-          }
-        }
-        if (tate[10] == 400 && yokous == yokocp4) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
-            $('.scorecount').html(score);
-          } else {
-            time -= 3
-            $('.countdown').html(time);
-          }
-        }
-        if (tate[11] == 400 && yokous == yokocp5) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
-            $('.scorecount').html(score);
-          } else {
-            time -= 3
-            $('.countdown').html(time);
-          }
-        }
-        if (tate[12] == 400 && yokous == yokocp6) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
-            $('.scorecount').html(score);
-          } else {
-            time -= 3
-            $('.countdown').html(time);
-          }
-        }
-        if (tate[13] == 400 && yokous == yokocp7) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
-            $('.scorecount').html(score);
-          } else {
-            time -= 3
-            $('.countdown').html(time);
-          }
-        }
-        if (tate[14] == 400 && yokous == yokocp2) {
-          if ($('.janken-player .img-pa').length) {
-            console.log('pa')
-          } else if ($('.janken-player .img-gu').length) {
-            console.log('gu')
-            time -= 2;
-            $('.countdown').html(time);
-          } else if ($('.janken-player .img-choki').length) {
-            console.log('choki')
-            score += 100;
-            $('.scorecount').html(score);
-          } else {
-            time -= 3
-            $('.countdown').html(time);
-          }
-        }
         };
 
 
