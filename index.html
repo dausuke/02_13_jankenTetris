@@ -149,6 +149,7 @@
         var tate = [];     //コンピューターの手のy軸の位置情報用の配列
         var array = [];    //コンピューターの手の出現用の配列
         var setid;         //setInterval終了用
+        var setid2;        //setInterval終了用
         var score = 0;     //スコア記録用
         var time;          //制限時間用
 
@@ -157,7 +158,7 @@
           //ユーザーの手の位置情報取得
           yokous = Math.floor($('.janken-player').offset().left);
         };
-
+        
         //コンピューターの手の移動の関数
         function idoucp() {
           $('.janken-cp').animate({ top: '+=' + yy + 'px' });
@@ -291,7 +292,7 @@
               time -= 2;
               $('.countdown').html(time);
             } else if ($('.janken-player .img-gu').length) {
-              cscore += 100;
+              score += 100;
               $('.scorecount').html(score);
             } else if ($('.janken-player .img-choki').length) {
               console.log('choki')
@@ -514,15 +515,18 @@
             $('.countdown').html(time);     //制限時間表示
             setid = setInterval(function () {
               idoucp();        //移動実行
+            }, 800);
+            setid2 = setInterval(function () {
+              // idoucp();        //移動実行
               time--;           //1秒おきにカウントマイナス
               $('.countdown').html(time);     //制限時間再表示
               if (time <= 0) {           //0になったら停止する
                 clearInterval(setid);
+                clearInterval(setid2);
                 $(".field").empty();    //画像の削除
                 alert("ゲーム終了");     //アラートでゲーム終了の表示
               }
             }, 1000);
-            
           });
         });
       });
